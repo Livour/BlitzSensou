@@ -6,6 +6,7 @@ public class GamePanel extends JPanel {
 
     public GamePanel(){
         player=new Player(400,400,100,100,100,this);
+        this.addKeyListener(new KeyAction(this));
         player.start();
     }
 
@@ -13,6 +14,5 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         //setBackground(Color.orange);
         player.draw(g);
-        g.drawImage((new ImageIcon ("touhou.png")).getImage(),400,400,100,100,null);
     }
 }

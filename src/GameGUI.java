@@ -7,6 +7,7 @@ public class GameGUI extends JFrame {
     public GameGUI(){
         setTitle("BlitzSensou");
         gp=new GamePanel();
+        gp.setFocusable(true);
         add(gp);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

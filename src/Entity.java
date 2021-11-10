@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class Entity extends Thread {
+    static final String UP="UP",DOWN="DOWN",RIGHT="RIGHT",LEFT="LEFT";
     int x, y, hp,width,height;
     Image img;
 
