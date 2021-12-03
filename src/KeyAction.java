@@ -12,23 +12,24 @@ public class KeyAction extends KeyAdapter {
 
     @Override
     public synchronized void keyPressed(KeyEvent e) {
-       // pressedKeys.add(e.getKeyCode());
-        //for(int key :pressedKeys) {
+        if(pressedKeys.contains(e.getKeyCode()))
+            return;
+        pressedKeys.add(e.getKeyCode());
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP: {
-                    panel.player.directions.put(panel.player.UP,true);
+                    panel.player.dirY-=1;
                     break;
                 }
                 case KeyEvent.VK_DOWN: {
-                    panel.player.directions.put(panel.player.DOWN,true);
+                    panel.player.dirY+=1;
                     break;
                 }
                 case KeyEvent.VK_RIGHT: {
-                    panel.player.directions.put(panel.player.RIGHT,true);
+                    panel.player.dirX+=1;
                     break;
                 }
                 case KeyEvent.VK_LEFT: {
-                    panel.player.directions.put(panel.player.LEFT,true);
+                    panel.player.dirX-=1;
                     break;
                 }
                 default:
@@ -39,25 +40,26 @@ public class KeyAction extends KeyAdapter {
 
     @Override
     public synchronized void keyReleased(KeyEvent e) {
-        //pressedKeys.remove(e.getKeyCode());
-
+        pressedKeys.remove(e.getKeyCode());
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP: {
-                panel.player.directions.put(panel.player.UP, false);
+                panel.player.dirY+=1;
                 break;
             }
             case KeyEvent.VK_DOWN: {
-                panel.player.directions.put(panel.player.DOWN, false);
+                panel.player.dirY-=1;
                 break;
             }
             case KeyEvent.VK_RIGHT: {
-                panel.player.directions.put(panel.player.RIGHT, false);
+                panel.player.dirX-=1;
                 break;
             }
             case KeyEvent.VK_LEFT: {
-                panel.player.directions.put(panel.player.LEFT, false);
+                panel.player.dirX+=1;
                 break;
             }
+            case KeyEvent.VK_ESCAPE:
+                System.exit(1);
             default:
                 break;
         }

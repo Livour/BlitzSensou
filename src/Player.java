@@ -1,45 +1,27 @@
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Player extends Shooter{
-    static final String playerImage="Resources\\Images\\Player.png";
+    static final String playerBase="Resources\\GIFs\\Player";
     GamePanel gamePanel;
     int hitWidth,hitHeight;
-    HashMap<String,Boolean> directions=new HashMap<>();
+    int dirX,dirY;
 
-    Player(int x, int y, int width, int height, int hp, GamePanel gamePanel) {
-        super(x, y, width, height, hp, playerImage);
+    Player(int x, int y, int size, int hp, GamePanel gamePanel) {
+        super(x, y, size*2/3, size, hp, playerBase+".gif");
         this.gamePanel=gamePanel;
-        directions.put(UP,false);
-        directions.put(DOWN,false);
-        directions.put(LEFT,false);
-        directions.put(RIGHT,false);
     }
 
-    boolean isMoving(){
-        for(Map.Entry<String,Boolean> pair :directions.entrySet()){
-            if(pair.getValue()) return true;
-        }
-        return false;
+    void playAnimation(int direction){
+        if(direction>0)
+            setImg(playerBase+"Right");
+        else if(direction<0)
+            setImg(playerBase+"Left");
+        else setImg(playerBase);
     }
-
     void move()
     {
-        if(isMoving()){
-            if(directions.get(LEFT)){
-                x-=1;
-            }
-            if(directions.get(RIGHT)){
-                x+=1;
-            }
-            if(directions.get(UP)){
-                y-=1;
-            }
-            if(directions.get(DOWN)){
-                y+=1;
-            }
-        }
+        x+=dirX;
+        y+=dirY;
     }
 
     @Override
@@ -54,6 +36,7 @@ public class Player extends Shooter{
         while(true)
         {
             move();
+            playAnimation(dirX);
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {

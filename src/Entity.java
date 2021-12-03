@@ -14,6 +14,15 @@ public abstract class Entity extends Thread {
         this.hp=hp;
         this.img= (new ImageIcon (imgURL)).getImage();
     }
+
+    public void setImg(String path){
+        setImg(path,true);
+    }
+    public void setImg(String path,boolean isGIF) {
+        path += isGIF? ".gif" :".png";
+        this.img= (new ImageIcon (path)).getImage();
+    }
+
     @Override
     public abstract void run();
     public abstract void draw(Graphics g);
