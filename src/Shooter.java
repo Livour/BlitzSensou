@@ -1,7 +1,8 @@
-public abstract class Shooter extends Entity{
+public abstract class Shooter extends LivingEntity {
 
-    Shooter(int x, int y, int width, int height, int hp, String img) {
-        super(x, y, width, height, hp, img);
+    Shooter(GamePanel gamePanel, int x, int y, int width, int height, String imgURL, int hp) {
+        super(gamePanel, x, y, width, height, imgURL, hp);
     }
 
+    public abstract void shoot();
 }

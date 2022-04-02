@@ -1,12 +1,11 @@
 import javax.swing.*;
 
 public class GameGUI extends JFrame {
-    final int WIDTH=1050,HEIGHT=1000;
     GamePanel gp;
 
-    public GameGUI(){
+    public GameGUI() {
         setTitle("BlitzSensou");
-        gp=new GamePanel();
+        gp = new GamePanel();
         gp.setFocusable(true);
         add(gp);
 
