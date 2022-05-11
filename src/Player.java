@@ -6,25 +6,25 @@ import javax.swing.*;
 
 public class Player extends Shooter {
     static final String playerBase = "Resources\\Player\\Player";
-    int hitWidth, hitHeight;
+    static final long INVINCIBILITY_TIME = 3000;
     int dirX, dirY;
     Timer shootingCooldown;
     boolean isShooting;
+    boolean isInvincible;
+    long lastHit;
+    Image shieldImg;
 
-    Player(GamePanel gamePanel, int x, int y, int size, int hp) {
-        super(gamePanel, x, y, size * 2 / 3, size, playerBase + ".gif", hp);
+    Player(GamePanel gamePanel, int x, int y, int size) {
+        super(gamePanel, x, y, size * 2 / 3, size, playerBase + ".gif");
+        lastHit = 0;
         dirX = 0;
         dirY = 0;
         isShooting = false;
-        shootingCooldown = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                shoot();
-            }
-        });
+        shootingCooldown = new Timer(200, e -> shoot());
         shootingCooldown.setRepeats(true);
         shootingCooldown.setCoalesce(true);
         shootingCooldown.start();
+        shieldImg = new ImageIcon(playerBase + "Shield.png").getImage();
     }
 
 
@@ -45,8 +45,9 @@ public class Player extends Shooter {
     public synchronized void shoot() {
         if (!isShooting)
             return;
-        Projectile playerBullet = new Projectile(gamePanel, x + 8, y - height / 2, 40, 40, "Resources\\Projectiles\\RedSword.png", 1, 0, -1, true);
-        gamePanel.projectiles.add(playerBullet);
+        double angle = Math.toRadians(-90);
+        Projectile playerBullet = new Projectile(gamePanel, (int) x + 8, (int) (y - height / 2), 40, 40, "Resources\\Projectiles\\RedSword.png", 1, true, angle, "Player");
+        gamePanel.allyProjectiles.add(playerBullet);
         playerBullet.start();
     }
 
@@ -63,26 +64,37 @@ public class Player extends Shooter {
             x = 0;
         if (y + height > h)
             y = h - height;
-        if (y < 0)
-            y = 0;
+        int maxHeight=375;//Biggest Lane+lane size
+        if (y < maxHeight)
+            y = maxHeight;
 
     }
 
     @Override
     public void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(img, x, y, width, height, null);
-       // g2d.drawRect(x, y, width, height);
+        if (isInvincible)
+            g2d.drawImage(shieldImg, (int) x - 5, (int) y, (int) width + 15, (int) height, null);
+        g2d.drawImage(img, (int) x, (int) y, (int) width, (int) height, null);
+        // g2d.drawRect(x, y, width, height);
     }
 
 
     @Override
     public void run() {
         while (alive) {
+            long time = System.currentTimeMillis();
+            isInvincible = !(time > lastHit + INVINCIBILITY_TIME);
             move();
+            if (isShot(true)) {
+                if (!isInvincible) {
+                    lastHit = time;
+                    gamePanel.health--;
+                }
+            }
             playAnimation(dirX);
             try {
-                TimeUnit.MILLISECONDS.sleep(4);//Thread.sleep(5);
+                TimeUnit.MILLISECONDS.sleep(5 / 2);//Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Random;
@@ -6,17 +7,25 @@ import java.util.concurrent.TimeUnit;
 public class Mosquito extends Shooter {
     static final String mosquitoAnimation = "Resources\\Enemies\\Mosquito.gif";
     int dirx;
+    Timer shootingCooldown;
+    int lane;
 
-    Mosquito(GamePanel gamePanel, int x, int y, int width, int height, int hp) {
-        super(gamePanel, x, y, width, height, mosquitoAnimation, hp);
+
+    Mosquito(GamePanel gamePanel, int x, int y, int width, int height, int lane) {
+        super(gamePanel, x, y, width, height, mosquitoAnimation);
         dirx = Arrays.asList(-1, 1).get(new Random().nextInt(2));
+        shootingCooldown = new Timer(900, e -> shoot());
+        shootingCooldown.setRepeats(true);
+        shootingCooldown.setCoalesce(true);
+        shootingCooldown.start();
+        this.lane = lane;
     }
 
     synchronized void move() {
-        if (y <= 200) {
+        if (y <= lane) {
             y++;
         }
-        if (x <= width)
+        if (x <= 0)
             dirx = 1;
         else if (x > gamePanel.getWidth() - width)
             dirx = -1;
@@ -25,7 +34,10 @@ public class Mosquito extends Shooter {
 
     @Override
     public void run() {
-        while (alive) {
+        while (true) {
+            if (isShot(false)) {
+                break;
+            }
             move();
             try {
                 TimeUnit.MILLISECONDS.sleep(8);//Thread.sleep(5);
@@ -33,17 +45,36 @@ public class Mosquito extends Shooter {
                 e.printStackTrace();
             }
         }
+        ScoreDrop scoreDrop = new ScoreDrop(gamePanel, x, y, 70, 35, 1000);
+        gamePanel.drops.add(scoreDrop);
+        scoreDrop.start();
+        shootingCooldown.stop();
+        gamePanel.enemies.remove(this);
     }
+
+    public void checkCollision() {
+        for (LivingEntity e : gamePanel.enemies) {
+            if (isIntersects(e)) {
+                this.dirx *= -1;
+                if (e instanceof Mosquito) {
+                    ((Mosquito) e).dirx *= -1;
+                }
+            }
+        }
+    }
+
 
     @Override
     public void draw(Graphics g) {
-        g.drawImage(img, x, y, width, height, null);
+        g.drawImage(img, (int) x, (int) y, (int) width, (int) height, null);
     }
 
     @Override
     public void shoot() {
-        /*Projectile playerBullet = new Projectile(gamePanel, x + 8, y - height / 2, 40, 40, "Resources\\Images\\Projectiles\\RedSword.png", 1, 0, -1, true);
-        gamePanel.projectiles.add(playerBullet);
-        playerBullet.start();*/
+        double angle = Math.atan2(gamePanel.player.y - y, gamePanel.player.x - x);
+        //  double angle = Math.toRadians(90);//Math.atan2(90)
+        Projectile MonsterBullet = new Projectile(gamePanel, (int) (x + (width / 4)), (int) (y + height / 2), 40, 40, "Resources\\Projectiles\\MosquitoShot.png", 1, false, angle, "Mosquito");
+        gamePanel.enemyProjectiles.add(MonsterBullet);
+        MonsterBullet.start();
     }
 }
