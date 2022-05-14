@@ -20,10 +20,9 @@ public class Sigma extends Shooter {
         this.lane=lane;
     }
 
-
     @Override
     public void run() {
-        while (alive) {
+        while (alive&&gamePanel.gameState== GamePanel.state.PLAY) {
             if (isShot(false)) {
                 break;
             }
@@ -34,9 +33,11 @@ public class Sigma extends Shooter {
                 e.printStackTrace();
             }
         }
+        if(gamePanel.gameState== GamePanel.state.PLAY){
         ScoreDrop scoreDrop = new ScoreDrop(gamePanel, x, y, 70, 35, 2000);
         gamePanel.drops.add(scoreDrop);
         scoreDrop.start();
+        }
         shootingCooldown.stop();
         gamePanel.enemies.remove(this);
     }

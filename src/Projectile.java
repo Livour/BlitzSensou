@@ -39,7 +39,7 @@ public class Projectile extends Entity {
 
     @Override
     public void run() {
-        while (alive) {
+        while (alive&&gamePanel.gameState== GamePanel.state.PLAY) {
             move();
             if (isOutOfBoundaries()) break;
             try {

@@ -34,7 +34,7 @@ public class Mosquito extends Shooter {
 
     @Override
     public void run() {
-        while (true) {
+        while (gamePanel.gameState== GamePanel.state.PLAY) {
             if (isShot(false)) {
                 break;
             }
@@ -45,24 +45,14 @@ public class Mosquito extends Shooter {
                 e.printStackTrace();
             }
         }
+        if(gamePanel.gameState== GamePanel.state.PLAY){
         ScoreDrop scoreDrop = new ScoreDrop(gamePanel, x, y, 70, 35, 1000);
         gamePanel.drops.add(scoreDrop);
         scoreDrop.start();
+        }
         shootingCooldown.stop();
         gamePanel.enemies.remove(this);
     }
-
-    public void checkCollision() {
-        for (LivingEntity e : gamePanel.enemies) {
-            if (isIntersects(e)) {
-                this.dirx *= -1;
-                if (e instanceof Mosquito) {
-                    ((Mosquito) e).dirx *= -1;
-                }
-            }
-        }
-    }
-
 
     @Override
     public void draw(Graphics g) {

@@ -12,9 +12,15 @@ public class ScoreDrop extends Entity {
 
     @Override
     public void run() {
-        while (true) {
+        while (gamePanel.gameState == GamePanel.state.PLAY) {
             if (isIntersects(this.gamePanel.player)) {
-                gamePanel.score += value;
+                try {
+                    gamePanel.sem.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                gamePanel.score += value;//Shared variable
+                gamePanel.sem.release();
                 break;
             }
             if (y > gamePanel.getHeight())

@@ -1,6 +1,9 @@
+import java.awt.*;
+import java.io.IOException;
+
 class main {
     public static void main(String[] args) {
-        GameGUI gui = new GameGUI();
+        GameLoginGUI loginGUI=new GameLoginGUI();
     }
 }
 

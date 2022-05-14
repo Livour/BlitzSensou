@@ -18,63 +18,134 @@ public class KeyAction extends KeyAdapter {
             return;
         pressedKeys.add(e.getKeyCode());
 
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_I: {
-                panel.player.dirY -= 1;
-                break;
+        if (panel.gameState == GamePanel.state.MENU) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_I: {//up
+                    panel.commandNum--;
+                    if (panel.commandNum < 0)
+                        panel.commandNum = 2;
+                    break;
+                }
+                case KeyEvent.VK_K: {//down
+                    panel.commandNum++;
+                    if (panel.commandNum > 2)
+                        panel.commandNum = 0;
+                    break;
+                }
+                case KeyEvent.VK_SPACE: {
+                    panel.executeCommand();
+                    break;
+                }
+                default:
+                    break;
             }
-            case KeyEvent.VK_K: {
-                panel.player.dirY += 1;
-                break;
-            }
-            case KeyEvent.VK_L: {
-                panel.player.dirX += 1;
-                break;
-            }
-            case KeyEvent.VK_J: {
-                panel.player.dirX -= 1;
-                break;
-            }
-            case KeyEvent.VK_SPACE: {
-                panel.player.isShooting = true;
-                break;
-            }
-            default:
-                break;
         }
+
+        if (panel.gameState == GamePanel.state.OVER)
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_I: {//up
+                    panel.commandNum--;
+                    if (panel.commandNum < 0)
+                        panel.commandNum = 2;
+                    break;
+                }
+                case KeyEvent.VK_K: {//down
+                    panel.commandNum++;
+                    if (panel.commandNum > 2)
+                        panel.commandNum = 0;
+                    break;
+                }
+                case KeyEvent.VK_SPACE: {
+                    panel.executeCommand();
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        if (panel.gameState == GamePanel.state.PLAY)
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_I: {
+                    panel.player.dirY -= 1;
+                    break;
+                }
+                case KeyEvent.VK_K: {
+                    panel.player.dirY += 1;
+                    break;
+                }
+                case KeyEvent.VK_L: {
+                    panel.player.dirX += 1;
+                    break;
+                }
+                case KeyEvent.VK_J: {
+                    panel.player.dirX -= 1;
+                    break;
+                }
+                case KeyEvent.VK_SPACE: {
+                    panel.player.isShooting = true;
+                    break;
+                }
+                case KeyEvent.VK_X: {
+                    panel.player.castShield();
+                    break;
+                }
+                default:
+                    break;
+            }
 
     }
 
     @Override
     public synchronized void keyReleased(KeyEvent e) {
         pressedKeys.remove(e.getKeyCode());
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_I: {//up
-                panel.player.dirY += 1;
-                break;
+        if (panel.gameState == GamePanel.state.PLAY)
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_I: {//up
+                    panel.player.dirY += 1;
+                    break;
+                }
+                case KeyEvent.VK_K: {//down
+                    panel.player.dirY -= 1;
+                    break;
+                }
+                case KeyEvent.VK_L: {//right
+                    panel.player.dirX -= 1;
+                    break;
+                }
+                case KeyEvent.VK_J: {//left
+                    panel.player.dirX += 1;
+                    break;
+                }
+                case KeyEvent.VK_SPACE: {
+                    panel.player.isShooting = false;
+                    break;
+                }
+                case KeyEvent.VK_ESCAPE: {
+                    System.exit(1);
+                    break;
+                }
+                default:
+                    break;
             }
-            case KeyEvent.VK_K: {//down
-                panel.player.dirY -= 1;
-                break;
+        else if (panel.gameState == GamePanel.state.MENU) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_ESCAPE: {
+                    System.exit(1);
+                    break;
+                }
+                default:
+                    break;
             }
-            case KeyEvent.VK_L: {//right
-                panel.player.dirX -= 1;
-                break;
+        } else if (panel.gameState == GamePanel.state.OVER) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_ESCAPE: {
+                    System.exit(1);
+                    break;
+                }
+                default:
+                    break;
             }
-            case KeyEvent.VK_J: {//left
-                panel.player.dirX += 1;
-                break;
-            }
-            case KeyEvent.VK_SPACE: {
-                panel.player.isShooting = false;
-                break;
-            }
-            case KeyEvent.VK_ESCAPE: {
-                System.exit(1);
-                break;
-            }
-            default:
-                break;
         }
+
     }
 }

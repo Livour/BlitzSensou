@@ -11,12 +11,12 @@ public class Player extends Shooter {
     Timer shootingCooldown;
     boolean isShooting;
     boolean isInvincible;
-    long lastHit;
+    long lastInvi;
     Image shieldImg;
 
     Player(GamePanel gamePanel, int x, int y, int size) {
         super(gamePanel, x, y, size * 2 / 3, size, playerBase + ".gif");
-        lastHit = 0;
+        lastInvi = 0;
         dirX = 0;
         dirY = 0;
         isShooting = false;
@@ -25,6 +25,13 @@ public class Player extends Shooter {
         shootingCooldown.setCoalesce(true);
         shootingCooldown.start();
         shieldImg = new ImageIcon(playerBase + "Shield.png").getImage();
+    }
+
+    void castShield(){
+        if(gamePanel.shields==0) return;
+        gamePanel.shields--;
+        lastInvi=System.currentTimeMillis();
+        isInvincible=true;
     }
 
 
@@ -64,7 +71,7 @@ public class Player extends Shooter {
             x = 0;
         if (y + height > h)
             y = h - height;
-        int maxHeight=375;//Biggest Lane+lane size
+        int maxHeight = 375;//Biggest Lane+lane size
         if (y < maxHeight)
             y = maxHeight;
 
@@ -82,13 +89,13 @@ public class Player extends Shooter {
 
     @Override
     public void run() {
-        while (alive) {
+        while (gamePanel.health > 0 && gamePanel.gameState == GamePanel.state.PLAY) {
             long time = System.currentTimeMillis();
-            isInvincible = !(time > lastHit + INVINCIBILITY_TIME);
+            isInvincible = !(time > lastInvi + INVINCIBILITY_TIME);
             move();
             if (isShot(true)) {
                 if (!isInvincible) {
-                    lastHit = time;
+                    lastInvi = time;
                     gamePanel.health--;
                 }
             }
@@ -100,6 +107,9 @@ public class Player extends Shooter {
             }
         }
         shootingCooldown.stop();
+        gamePanel.changeState();
+
+
     }
 }
 
