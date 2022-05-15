@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
@@ -27,11 +28,11 @@ public class Player extends Shooter {
         shieldImg = new ImageIcon(playerBase + "Shield.png").getImage();
     }
 
-    void castShield(){
-        if(gamePanel.shields==0) return;
+    void castShield() {
+        if (gamePanel.shields == 0) return;
         gamePanel.shields--;
-        lastInvi=System.currentTimeMillis();
-        isInvincible=true;
+        lastInvi = System.currentTimeMillis();
+        isInvincible = true;
     }
 
 
@@ -106,9 +107,14 @@ public class Player extends Shooter {
                 e.printStackTrace();
             }
         }
+        if (gamePanel.socket.status)
+            try {
+                gamePanel.isBest = gamePanel.socket.setData(new User(gamePanel.username, gamePanel.score, gamePanel.timer.time));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         shootingCooldown.stop();
         gamePanel.changeState();
-
 
     }
 }

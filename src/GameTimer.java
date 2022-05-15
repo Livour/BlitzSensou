@@ -11,6 +11,10 @@ public class GameTimer extends Thread {
     }
 
     public double getSeconds() {
+        return toSeconds(time);
+    }
+
+    public static double toSeconds(long time) {
         return ((double) time / 1000);
     }
 

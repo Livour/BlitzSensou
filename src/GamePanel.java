@@ -4,12 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class GamePanel extends JPanel {
     //Config
+    final int USERNAME_SIZE = 10;
     final int WIDTH = 1920;
     final int ROW = WIDTH / 20;
     final int HEIGHT = 1080;
@@ -18,6 +20,10 @@ public class GamePanel extends JPanel {
     Image characterImg;
     Font defaultFont, arrowFont;
     String username;
+    GameSocket socket;
+    Leaderboard lb;
+    User user;
+    boolean isBest;
 
     //Entities
     Player player;
@@ -38,13 +44,20 @@ public class GamePanel extends JPanel {
     Image backgroundImage;
 
     //Game State
-    enum state {PLAY, OVER, MENU}
+    enum state {PLAY, OVER, MENU, LEADERBOARD}
 
     state gameState;
+    state prevState;
     //Menu
     int commandNum = 0;
+    int page = 0;
 
     public GamePanel(String title, String username) throws IOException, FontFormatException {
+        socket = new GameSocket();
+        socket.startConnection();
+        if (socket.status)
+            user = socket.getUser(username);
+        else user = null;
         this.username = username;
         InputStream is = getClass().getResourceAsStream("\\fonts\\pcsenior.ttf");
         defaultFont = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -67,10 +80,29 @@ public class GamePanel extends JPanel {
                 gameState = state.PLAY;
                 break;
             }
+            case LEADERBOARD -> {
+                gameState = prevState;
+                if (prevState == state.OVER) backgroundImage = new ImageIcon("Resources\\OverMenu.jpg").getImage();
+                else if (prevState == state.MENU) backgroundImage = new ImageIcon("Resources\\menu.jpg").getImage();
+            }
         }
     }
 
+    public void changeToLeaderboardState() {
+        if (!socket.status)
+            return;
+        try {
+            lb = socket.getLeaderboard();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        backgroundImage = new ImageIcon("Resources\\Leaderboard.jpg").getImage();
+        prevState = gameState;
+        gameState = state.LEADERBOARD;
+    }
+
     public void newGame() {
+        isBest = false;
         backgroundImage = new ImageIcon("Resources\\background.gif").getImage();
         score = 0;
         gameState = state.PLAY;
@@ -104,7 +136,7 @@ public class GamePanel extends JPanel {
                 newGame();
                 break;
             case 1:
-                System.out.println("middle option " + username);
+                changeToLeaderboardState();
                 break;
             case 2:
                 System.exit(1);
@@ -137,6 +169,11 @@ public class GamePanel extends JPanel {
             }
             case OVER -> {
                 paintGameOver(g);
+                break;
+            }
+            case LEADERBOARD -> {
+                paintLeaderboard(g);
+                break;
             }
         }
     }
@@ -157,6 +194,7 @@ public class GamePanel extends JPanel {
         y += ROW;
         printMenuText(g2d, print, x, y);
 
+
         //display time in a seconds.millis format
         print = "TIME:" + timer.getSeconds();
         g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 50));
@@ -164,10 +202,18 @@ public class GamePanel extends JPanel {
         y += ROW;
         printMenuText(g2d, print, x, y);
 
+        if (isBest) {
+            print = "NEW PERSONAL BEST!";
+            g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 50));
+            x = getCenteredX(print, g2d);
+            y += ROW;
+            printMenuText(g2d, print, x, y);
+        }
+
         print = "RETRY";
         g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 64));
         x = getCenteredX(print, g2d);
-        y += ROW * 2;
+        y += isBest ? ROW : ROW * 2;
         printMenuText(g2d, print, x, y, 64, 0);
 
         print = "VIEW LEADERBOARD";
@@ -179,6 +225,70 @@ public class GamePanel extends JPanel {
         x = getCenteredX(print, g2d);
         y += ROW * 1;
         printMenuText(g2d, print, x, y, 64, 2);
+    }
+
+    private void paintLeaderboard(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g.drawImage(backgroundImage, 0, 0, null);
+        if (page == 0) paintTopScore(g2d);
+        if (page == 1) paintTopTime(g2d);
+    }
+
+    private void paintTopScore(Graphics2D g2d) {
+        String print = "SCORE LEADERBOARD";
+        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 80F));
+        int x = getCenteredX(print, g2d);
+        int y = ROW;
+        printMenuText(g2d, print, x, y);
+        ArrayList<UserScore> topScore = this.lb.topScore;
+        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 50F));
+        if (topScore.size() == 0) {
+            g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 60F));
+            print = "No Records";
+            x = getCenteredX(print, g2d);
+            y += ROW * 3;
+            printMenuText(g2d, print, x, y);
+        }
+        x = COL / 2;
+        UserScore us;
+        for (int i = 0; i < topScore.size(); i++) {
+            y += ROW;
+            us = topScore.get(i);
+            if (i != 9)
+                print = String.format("No.%d  %s %s Score:%d", i + 1, us.username, " ".repeat(USERNAME_SIZE - us.username.length() + 1), us.score);
+            else
+                print = String.format("No.%d %s %s Score:%d", i + 1, us.username, " ".repeat(USERNAME_SIZE - us.username.length() + 1), us.score);
+            printMenuText(g2d, print, x, y);
+        }
+    }
+
+    private void paintTopTime(Graphics2D g2d) {
+        String print = "TIME LEADERBOARD";
+        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 80F));
+        int x = getCenteredX(print, g2d);
+        int y = ROW;
+        printMenuText(g2d, print, x, y);
+        ArrayList<UserTime> topTime = this.lb.topTime;
+        g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 50F));
+        if (topTime.size() == 0) {
+            g2d.setFont(g2d.getFont().deriveFont(Font.BOLD, 60F));
+            print = "No Records";
+            x = getCenteredX(print, g2d);
+            y += ROW * 3;
+            printMenuText(g2d, print, x, y);
+        }
+        x = COL / 2;
+        UserTime us;
+        for (int i = 0; i < topTime.size(); i++) {
+            y += ROW;
+            us = topTime.get(i);
+            if (i != 9)
+                print = String.format("No.%d  %s %s Time:%f", i + 1, us.username, " ".repeat(USERNAME_SIZE - us.username.length() + 1), GameTimer.toSeconds(us.time));
+            else
+                print = String.format("No.%d %s %s Time:%f", i + 1, us.username, " ".repeat(USERNAME_SIZE - us.username.length() + 1), GameTimer.toSeconds(us.time));
+            printMenuText(g2d, print, x, y);
+        }
+
     }
 
     private synchronized void paintGame(Graphics g) {
@@ -245,7 +355,14 @@ public class GamePanel extends JPanel {
 
         g.setFont(g.getFont().deriveFont(Font.BOLD, 20F));
         g.setColor(Color.white);
-        g.drawString("Welcome " + username+"!", 20, getHeight() - 30);
+        if (user == null)
+            g.drawString("Welcome " + username + "!", 20, getHeight() - 30);
+        else
+            g.drawString(String.format("Welcome %s!       Perosnal Best - Score:%d    Time:%f", username, user.score, GameTimer.toSeconds(user.time)), 20, getHeight() - 30);
+        g.drawString("Status:", getWidth() - 180, getHeight() - 30);
+        if (socket.status) g.setColor(Color.green);
+        else g.setColor(Color.red);
+        g.fillOval(getWidth() - 30, getHeight() - 50,25,25);
     }
 
     private void printMenuText(Graphics2D g2d, String text, int x, int y, int size, int index) {

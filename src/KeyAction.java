@@ -18,6 +18,24 @@ public class KeyAction extends KeyAdapter {
             return;
         pressedKeys.add(e.getKeyCode());
 
+        if (panel.gameState == GamePanel.state.LEADERBOARD) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_L: {//right
+                    panel.page++;
+                    if (panel.page > 1)
+                        panel.page = 0;
+                    break;
+                }
+                case KeyEvent.VK_J: {//left
+                    panel.page--;
+                    if (panel.page < 0)
+                        panel.page = 1;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
         if (panel.gameState == GamePanel.state.MENU) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_I: {//up
@@ -32,7 +50,7 @@ public class KeyAction extends KeyAdapter {
                         panel.commandNum = 0;
                     break;
                 }
-                case KeyEvent.VK_SPACE: {
+                case KeyEvent.VK_ENTER: {
                     panel.executeCommand();
                     break;
                 }
@@ -55,7 +73,7 @@ public class KeyAction extends KeyAdapter {
                         panel.commandNum = 0;
                     break;
                 }
-                case KeyEvent.VK_SPACE: {
+                case KeyEvent.VK_ENTER: {
                     panel.executeCommand();
                     break;
                 }
@@ -92,7 +110,6 @@ public class KeyAction extends KeyAdapter {
                 default:
                     break;
             }
-
     }
 
     @Override
@@ -127,7 +144,7 @@ public class KeyAction extends KeyAdapter {
                 default:
                     break;
             }
-        else if (panel.gameState == GamePanel.state.MENU) {
+        else if (panel.gameState == GamePanel.state.MENU || panel.gameState == GamePanel.state.OVER) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_ESCAPE: {
                     System.exit(1);
@@ -136,10 +153,14 @@ public class KeyAction extends KeyAdapter {
                 default:
                     break;
             }
-        } else if (panel.gameState == GamePanel.state.OVER) {
+        } else if (panel.gameState == GamePanel.state.LEADERBOARD) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_ESCAPE: {
                     System.exit(1);
+                    break;
+                }
+                case KeyEvent.VK_SPACE: {
+                    panel.changeState();
                     break;
                 }
                 default:
