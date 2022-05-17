@@ -24,6 +24,9 @@ public class GamePanel extends JPanel {
     Leaderboard lb;
     User user;
     boolean isBest;
+    MusicPlayer mp;
+    Image muted;
+    Image unmuted;
 
     //Entities
     Player player;
@@ -53,6 +56,10 @@ public class GamePanel extends JPanel {
     int page = 0;
 
     public GamePanel(String title, String username) throws IOException, FontFormatException {
+        muted=new ImageIcon("Resources\\audio\\mute_icon.png").getImage();
+        unmuted=new ImageIcon("Resources\\audio\\unmute_icon.png").getImage();
+        mp = new MusicPlayer();
+        mp.start();
         socket = new GameSocket();
         socket.startConnection();
         if (socket.status)
@@ -225,6 +232,8 @@ public class GamePanel extends JPanel {
         x = getCenteredX(print, g2d);
         y += ROW * 1;
         printMenuText(g2d, print, x, y, 64, 2);
+
+        printAudioIcon(g2d);
     }
 
     private void paintLeaderboard(Graphics g) {
@@ -362,7 +371,8 @@ public class GamePanel extends JPanel {
         g.drawString("Status:", getWidth() - 180, getHeight() - 30);
         if (socket.status) g.setColor(Color.green);
         else g.setColor(Color.red);
-        g.fillOval(getWidth() - 30, getHeight() - 50,25,25);
+        g.fillOval(getWidth() - 30, getHeight() - 50, 25, 25);
+        printAudioIcon(g2d);
     }
 
     private void printMenuText(Graphics2D g2d, String text, int x, int y, int size, int index) {
@@ -370,6 +380,11 @@ public class GamePanel extends JPanel {
         if (commandNum == index) {
             printArrow(g2d, x, y, size);
         }
+    }
+
+    private void printAudioIcon(Graphics2D g2d){
+        Image toPrint = mp.isPlaying?unmuted:muted;
+        g2d.drawImage(toPrint, 0, 0, ROW * 1, ROW * 1, this);
     }
 
     private void printMenuText(Graphics2D g2d, String text, int x, int y) {

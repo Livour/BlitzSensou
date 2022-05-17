@@ -44,13 +44,13 @@ public class Player extends Shooter {
         else setImg(playerBase);
     }
 
-    synchronized void move() {
+    void move() {
         x += dirX;
         y += dirY;
         constraintBoundaries();
     }
 
-    public synchronized void shoot() {
+    public void shoot() {
         if (!isShooting)
             return;
         double angle = Math.toRadians(-90);

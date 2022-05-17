@@ -23,7 +23,6 @@ public class GameSocket {
             clientSocket = new Socket(IP, PORT);
         } catch (Exception e) {
             status = false;
-            e.printStackTrace();
         }
         if (clientSocket == null) {
             return;

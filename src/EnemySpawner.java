@@ -43,7 +43,7 @@ public class EnemySpawner extends Thread {
     @Override
     public void run() {
 
-        while (true) {
+        while (panel.gameState== GamePanel.state.PLAY) {
             LivingEntity enemy = newRandomEnemy();
             panel.enemies.add(enemy);
             enemy.start();

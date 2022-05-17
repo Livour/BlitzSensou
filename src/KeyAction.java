@@ -18,6 +18,13 @@ public class KeyAction extends KeyAdapter {
             return;
         pressedKeys.add(e.getKeyCode());
 
+        if(e.getKeyCode()==KeyEvent.VK_P){
+            if(panel.mp.isPlaying)
+                panel.mp.stop();
+            else{
+                panel.mp.start();
+            }
+        }
         if (panel.gameState == GamePanel.state.LEADERBOARD) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_L: {//right
