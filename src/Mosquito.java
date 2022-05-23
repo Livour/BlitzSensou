@@ -34,7 +34,7 @@ public class Mosquito extends Shooter {
 
     @Override
     public void run() {
-        while (gamePanel.gameState== GamePanel.state.PLAY) {
+        while (gamePanel.gameState== GamePanel.state.PLAY&&alive) {
             if (isShot(false)) {
                 break;
             }

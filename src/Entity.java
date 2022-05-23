@@ -36,8 +36,9 @@ public abstract class Entity extends Thread {
     public synchronized boolean isShot(boolean isFriendly) {
         Vector<Projectile> projectiles = isFriendly ? gamePanel.enemyProjectiles : gamePanel.allyProjectiles;
         try {
-            for (Projectile p : projectiles) {
-                if (p.alive == false || p.isAlive() == false) continue;
+            for (int i = 0; i < projectiles.size(); i++) {
+                Projectile p = projectiles.get(i);
+                if (p == null || p.alive == false || p.isAlive() == false) continue;
                 switch (p.type) {
                     case "Player":
                         if (isIntersects(p)) {

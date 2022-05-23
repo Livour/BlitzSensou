@@ -114,6 +114,9 @@ public class KeyAction extends KeyAdapter {
                     panel.player.castShield();
                     break;
                 }
+                case KeyEvent.VK_Z:{
+                    GrievousBomb.castBombs(panel);
+                }
                 default:
                     break;
             }

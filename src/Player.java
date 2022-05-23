@@ -29,7 +29,7 @@ public class Player extends Shooter {
     }
 
     void castShield() {
-        if (gamePanel.shields == 0) return;
+        if (gamePanel.shields == 0||this.isInvincible) return;
         gamePanel.shields--;
         lastInvi = System.currentTimeMillis();
         isInvincible = true;

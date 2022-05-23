@@ -34,6 +34,7 @@ public class GamePanel extends JPanel {
     Vector<Projectile> enemyProjectiles;
     Vector<LivingEntity> enemies;
     Vector<ScoreDrop> drops;
+    Vector<GrievousBomb> grievousBombs;
 
     //Management
     Semaphore sem;
@@ -44,6 +45,7 @@ public class GamePanel extends JPanel {
     int score;
     int health;
     int shields;
+    int specials;
     Image backgroundImage;
 
     //Game State
@@ -56,8 +58,8 @@ public class GamePanel extends JPanel {
     int page = 0;
 
     public GamePanel(String title, String username) throws IOException, FontFormatException {
-        muted=new ImageIcon("Resources\\audio\\mute_icon.png").getImage();
-        unmuted=new ImageIcon("Resources\\audio\\unmute_icon.png").getImage();
+        muted = new ImageIcon("Resources\\audio\\mute_icon.png").getImage();
+        unmuted = new ImageIcon("Resources\\audio\\unmute_icon.png").getImage();
         mp = new MusicPlayer();
         mp.start();
         socket = new GameSocket();
@@ -115,6 +117,7 @@ public class GamePanel extends JPanel {
         gameState = state.PLAY;
         health = 3;
         shields = 3;
+        specials = 3;
         commandNum = 0;
         sem = new Semaphore(1);
         timer = new GameTimer(this);
@@ -122,6 +125,7 @@ public class GamePanel extends JPanel {
         drops = new Vector<>();
         allyProjectiles = new Vector<>();
         enemyProjectiles = new Vector<>();
+        grievousBombs = new Vector<>();
         enemies = new Vector<>();
         enemySpawner = new EnemySpawner(this);
         enemySpawner.start();
@@ -160,6 +164,10 @@ public class GamePanel extends JPanel {
         for (int i = 0; i < allyProjectiles.size(); i++)
             if (!allyProjectiles.get(i).isAlive())
                 allyProjectiles.remove(i);
+
+        for (int i = 0; i < grievousBombs.size(); i++)
+            if (!grievousBombs.get(i).isAlive())
+                grievousBombs.remove(i);
     }
 
     public synchronized void paintComponent(Graphics g) {
@@ -326,11 +334,18 @@ public class GamePanel extends JPanel {
             if (e.isAlive())
                 e.draw(g);
         }
+        for (int i = 0; i < grievousBombs.size(); i++) {
+            Entity e = grievousBombs.get(i);
+            if (e.isAlive()){
+                e.draw(g);
+            }
+        }
         g.setFont(g.getFont().deriveFont(Font.BOLD, 20F));
         g.setColor(Color.white);
         g.drawString("Score:" + score, 20, getHeight() - 30);
-        g.drawString("Shields:" + shields, 20, getHeight() - 60);
-        g.drawString("HP:" + health, 20, getHeight() - 90);
+        g.drawString("Specials:" + specials, 20, getHeight() - 60);
+        g.drawString("Shields:" + shields, 20, getHeight() - 90);
+        g.drawString("HP:" + health, 20, getHeight() - 120);
     }
 
     private synchronized void paintMenu(Graphics g) {
@@ -382,8 +397,8 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void printAudioIcon(Graphics2D g2d){
-        Image toPrint = mp.isPlaying?unmuted:muted;
+    private void printAudioIcon(Graphics2D g2d) {
+        Image toPrint = mp.isPlaying ? unmuted : muted;
         g2d.drawImage(toPrint, 0, 0, ROW * 1, ROW * 1, this);
     }
 
